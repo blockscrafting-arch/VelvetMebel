@@ -55,6 +55,7 @@ async def main():
                 logger.info("Планировщик остановлен")
             except SchedulerNotRunningError:
                 pass
+        sys.exit(0)
 
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)

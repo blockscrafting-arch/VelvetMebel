@@ -40,7 +40,8 @@ async def on_assembly_problem(event: MessageCallback):
     """«Нет» — текст и кнопка в чат поддержки (если задана), обновляем статус."""
     kb = support_kb()
     if kb:
-        await event.answer(new_text=texts.FEEDBACK_PROBLEM, keyboard=kb.as_markup())
+        await event.answer(notification="")
+        await event.message.answer(text=texts.FEEDBACK_PROBLEM, attachments=[kb.as_markup()])
     else:
         await event.answer(new_text=texts.FEEDBACK_PROBLEM)
     if event.from_user:

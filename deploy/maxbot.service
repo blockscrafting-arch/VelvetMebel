@@ -9,6 +9,7 @@ WorkingDirectory=/home/botuser/evgesha20
 ExecStart=/home/botuser/evgesha20/venv/bin/python -m bot.main
 Restart=always
 RestartSec=10
+TimeoutStopSec=15
 EnvironmentFile=/home/botuser/evgesha20/.env
 
 [Install]

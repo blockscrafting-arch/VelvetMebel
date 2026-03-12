@@ -18,7 +18,8 @@ router = Router()
 async def on_get_instruction(event: MessageCallback):
     """Нажата кнопка 'Получить видео инструкцию' — показать выбор модели."""
     kb = models_kb()
-    await event.answer(new_text=texts.CHOOSE_MODEL, keyboard=kb.as_markup())
+    await event.answer(notification="")
+    await event.message.answer(text=texts.CHOOSE_MODEL, attachments=[kb.as_markup()])
 
 
 @router.message_callback(F.callback.payload.in_(["model_1", "model_2", "model_3"]))
