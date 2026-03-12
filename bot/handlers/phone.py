@@ -30,28 +30,55 @@ def _normalize_phone(raw: str) -> str:
     return raw
 
 
+def _get_phone_from_payload(payload) -> str | None:
+    """Достать номер из payload (объект или dict), разные варианты имён полей."""
+    if payload is None:
+        return None
+    for key in ("phone_number", "phoneNumber", "phone"):
+        if hasattr(payload, key):
+            val = getattr(payload, key, None)
+            if val and str(val).strip():
+                return str(val).strip()
+        if isinstance(payload, dict) and payload.get(key):
+            return str(payload[key]).strip()
+    return None
+
+
 def _extract_phone_from_contact_attachment(attachments: list) -> str | None:
-    """Из вложений сообщения извлечь номер из контакта (type=contact)."""
+    """Из вложений сообщения извлечь номер из контакта (type=contact и др.)."""
     if not attachments:
         return None
+    contact_types = ("contact", "request_contact", "contact_shared")
     for att in attachments:
         att_type = getattr(att, "type", None) or (
             att.get("type") if isinstance(att, dict) else None
         )
-        if att_type != "contact":
+        if att_type not in contact_types:
             continue
         payload = getattr(att, "payload", None) or (
             att.get("payload") if isinstance(att, dict) else None
         )
-        if not payload:
-            continue
-        if hasattr(payload, "phone_number"):
-            return getattr(payload, "phone_number", None)
-        if hasattr(payload, "phone"):
-            return getattr(payload, "phone", None)
-        if isinstance(payload, dict):
-            return payload.get("phone_number") or payload.get("phone")
+        phone = _get_phone_from_payload(payload)
+        if phone:
+            return phone
+        if isinstance(att, dict) and att.get("phone_number"):
+            return str(att["phone_number"]).strip()
+        if hasattr(att, "phone_number") and getattr(att, "phone_number", None):
+            return str(getattr(att, "phone_number")).strip()
     return None
+
+
+def _attachment_to_dict(att) -> dict:
+    """Безопасно превратить вложение в dict для лога."""
+    if att is None:
+        return {}
+    if isinstance(att, dict):
+        return att
+    if hasattr(att, "model_dump"):
+        return att.model_dump()
+    if hasattr(att, "dict"):
+        return att.dict()
+    return {"type": type(att).__name__, "repr": str(att)[:200]}
 
 
 @router.message_created(F.message.body.attachments)
@@ -60,6 +87,10 @@ async def on_contact_shared(event: MessageCreated):
     attachments = event.message.body.attachments or []
     phone = _extract_phone_from_contact_attachment(attachments)
     if not phone:
+        logger.info(
+            "contact_shared: телефон не извлечён, вложения=%s",
+            [_attachment_to_dict(a) for a in attachments],
+        )
         return
     phone = _normalize_phone(phone)
     if len(phone) < 10:
