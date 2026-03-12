@@ -72,3 +72,29 @@ def find_row_by_user_and_model(user_id: int, model_name: str) -> int | None:
     except Exception:
         logger.exception("Ошибка поиска строки в Google Sheets")
     return None
+
+
+def find_last_row_by_user(user_id: int) -> int | None:
+    """Последняя строка в таблице, где в столбце C есть user_id (для обновления телефона в F)."""
+    try:
+        ws = _get_sheet()
+        all_rows = ws.get_all_values()
+        uid_str = str(user_id)
+        last_match = None
+        for i, row in enumerate(all_rows, start=1):
+            if len(row) >= 3 and uid_str in row[2]:
+                last_match = i
+        return last_match
+    except Exception:
+        logger.exception("Ошибка поиска строки в Google Sheets")
+    return None
+
+
+def update_phone(row_index: int, phone: str) -> None:
+    """Записать номер телефона в столбец F (колонка 6)."""
+    try:
+        ws = _get_sheet()
+        ws.update_cell(row_index, 6, phone)
+        logger.info("Обновлён телефон в Google Sheets (строка %d): %s", row_index, phone)
+    except Exception:
+        logger.exception("Ошибка обновления телефона в Google Sheets")

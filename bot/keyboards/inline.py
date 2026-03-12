@@ -1,4 +1,4 @@
-from maxapi.types import CallbackButton, LinkButton
+from maxapi.types import CallbackButton, LinkButton, RequestContactButton
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
 from bot.config import settings
@@ -12,6 +12,9 @@ def main_menu_kb() -> InlineKeyboardBuilder:
             text=texts.BTN_GET_INSTRUCTION,
             payload="get_instruction",
         )
+    )
+    builder.row(
+        RequestContactButton(text=texts.BTN_SHARE_PHONE),
     )
     return builder
 

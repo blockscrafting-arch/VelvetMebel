@@ -44,19 +44,36 @@ async def save_user(
     first_name: str | None = None,
     last_name: str | None = None,
     username: str | None = None,
+    phone: str | None = None,
 ):
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             """
-            INSERT INTO users (user_id, chat_id, first_name, last_name, username)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO users (user_id, chat_id, first_name, last_name, username, phone)
+            VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(user_id) DO UPDATE SET
                 chat_id = excluded.chat_id,
                 first_name = excluded.first_name,
                 last_name = excluded.last_name,
-                username = excluded.username
+                username = excluded.username,
+                phone = CASE
+                    WHEN excluded.phone IS NOT NULL AND excluded.phone != ''
+                    THEN excluded.phone ELSE users.phone END
             """,
-            (user_id, chat_id, first_name, last_name, username),
+            (user_id, chat_id, first_name, last_name, username, (phone or "").strip()),
+        )
+        await db.commit()
+
+
+async def update_user_phone(user_id: int, phone: str) -> None:
+    """Обновить номер телефона пользователя."""
+    phone = (phone or "").strip()
+    if not phone:
+        return
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE users SET phone = ? WHERE user_id = ?",
+            (phone, user_id),
         )
         await db.commit()
 

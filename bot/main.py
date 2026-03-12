@@ -11,6 +11,7 @@ from bot.services.database import init_db
 from apscheduler.schedulers.base import SchedulerNotRunningError
 from bot.services.scheduler import init_scheduler, get_scheduler
 from bot.handlers.start import router as start_router
+from bot.handlers.phone import router as phone_router
 from bot.handlers.instructions import router as instructions_router
 from bot.handlers.feedback import router as feedback_router
 
@@ -30,7 +31,7 @@ async def main():
     bot = Bot(token=settings.bot.token)
     dp = Dispatcher()
 
-    dp.include_routers(start_router, instructions_router, feedback_router)
+    dp.include_routers(start_router, phone_router, instructions_router, feedback_router)
 
     await init_db()
     logger.info("База данных инициализирована")
