@@ -60,6 +60,7 @@ async def main():
     signal.signal(signal.SIGINT, _shutdown)
 
     logger.info("Бот запускается...")
+    await bot.delete_webhook()
     await dp.start_polling(bot)
 
 
