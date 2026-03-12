@@ -8,6 +8,7 @@ from maxapi import Bot, Dispatcher
 
 from bot.config import settings
 from bot.services.database import init_db
+from apscheduler.schedulers.base import SchedulerNotRunningError
 from bot.services.scheduler import init_scheduler, get_scheduler
 from bot.handlers.start import router as start_router
 from bot.handlers.instructions import router as instructions_router
@@ -48,9 +49,12 @@ async def main():
 
     def _shutdown(*_args):
         sched = get_scheduler()
-        if sched:
-            sched.shutdown(wait=False)
-            logger.info("Планировщик остановлен")
+        if sched and sched.running:
+            try:
+                sched.shutdown(wait=False)
+                logger.info("Планировщик остановлен")
+            except SchedulerNotRunningError:
+                pass
 
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
