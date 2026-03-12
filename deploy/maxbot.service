@@ -1,0 +1,15 @@
+[Unit]
+Description=MAX Bot Velvet Mebel — техподдержка
+After=network.target
+
+[Service]
+Type=simple
+User=botuser
+WorkingDirectory=/home/botuser/evgesha20
+ExecStart=/home/botuser/evgesha20/venv/bin/python -m bot.main
+Restart=always
+RestartSec=10
+EnvironmentFile=/home/botuser/evgesha20/.env
+
+[Install]
+WantedBy=multi-user.target

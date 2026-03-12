@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# Секреты и данные
+.env
+venv/
+.venv/
+credentials.json
+data/*.db
+data/*.sqlite
+
+# Документация и Cursor — не коммитим
+*.md
+.cursor/
+
+# IDE
+.idea/
+.vscode/

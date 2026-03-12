@@ -1,0 +1,7 @@
+maxapi>=0.9.16,<0.10
+apscheduler>=3.10,<4.0
+SQLAlchemy>=2.0,<3.0
+aiosqlite>=0.20.0,<0.21
+gspread>=6.0,<7.0
+google-auth>=2.0,<3.0
+python-dotenv>=1.0,<2.0
