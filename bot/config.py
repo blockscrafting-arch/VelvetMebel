@@ -1,9 +1,20 @@
 import os
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Московское время (МСК) для записей в БД, таблицу и планировщик
+MSK = ZoneInfo("Europe/Moscow")
+
+
+def now_msk() -> datetime:
+    """Текущее время в Москве (МСК)."""
+    return datetime.now(MSK)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

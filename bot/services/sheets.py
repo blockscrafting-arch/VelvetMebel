@@ -1,10 +1,8 @@
 import logging
-from datetime import datetime
-
 import gspread
 from google.oauth2.service_account import Credentials
 
-from bot.config import settings
+from bot.config import settings, now_msk
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +36,7 @@ def append_request(
         full_name = f"{first_name} {last_name}" if last_name else first_name
         # В C всегда включаем user_id для надёжного поиска при обновлении статуса
         nick = f"{user_id} @{username}" if username else str(user_id)
-        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        now = now_msk().strftime("%Y-%m-%d %H:%M")
 
         ws.append_row(
             [now, full_name, nick, model_name, "Ожидание", "—"],

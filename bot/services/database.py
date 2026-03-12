@@ -1,8 +1,7 @@
 import logging
 import aiosqlite
-from datetime import datetime
 
-from bot.config import settings
+from bot.config import settings, now_msk
 
 logger = logging.getLogger(__name__)
 DB_PATH = settings.db_path
@@ -83,7 +82,7 @@ async def save_request(
     chat_id: int,
     model: str,
 ) -> int:
-    now = datetime.now()
+    now = now_msk()
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
             """
@@ -110,7 +109,7 @@ async def update_feedback_status(request_id: int, status: str):
             SET feedback_status = ?, feedback_sent_at = ?
             WHERE id = ?
             """,
-            (status, datetime.now(), request_id),
+            (status, now_msk(), request_id),
         )
         await db.commit()
 

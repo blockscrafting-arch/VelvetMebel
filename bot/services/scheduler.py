@@ -1,11 +1,11 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from maxapi import Bot
 
-from bot.config import settings
+from bot.config import settings, now_msk
 from bot import texts
 from bot.keyboards.inline import feedback_kb
 from bot.services import database
@@ -43,13 +43,14 @@ def schedule_feedback(
     if _scheduler is None:
         raise RuntimeError("Планировщик не инициализирован")
 
-    run_at = datetime.now() + timedelta(hours=settings.feedback_delay_hours)
+    run_at_msk = now_msk() + timedelta(hours=settings.feedback_delay_hours)
+    run_at_utc = run_at_msk.astimezone(timezone.utc)
     job_id = f"feedback_{user_id}_{request_id}"
 
     _scheduler.add_job(
         send_feedback_message,
         "date",
-        run_date=run_at,
+        run_date=run_at_utc,
         id=job_id,
         replace_existing=True,
         kwargs={
@@ -60,10 +61,10 @@ def schedule_feedback(
         },
     )
     logger.info(
-        "Запланировано сообщение о сборке: user=%s, model=%s, время=%s",
+        "Запланировано сообщение о сборке: user=%s, model=%s, время МСК=%s",
         user_id,
         model_name,
-        run_at.strftime("%Y-%m-%d %H:%M"),
+        run_at_msk.strftime("%Y-%m-%d %H:%M"),
     )
 
 
