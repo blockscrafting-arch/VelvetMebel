@@ -14,7 +14,11 @@ router = Router()
 @router.bot_started()
 async def on_bot_started(event: BotStarted):
     """Пользователь нажал 'Начать' — приветствие + главное меню."""
-    logger.info("bot_started: chat_id=%s user_id=%s", event.chat_id, getattr(event.user, "user_id", None))
+    logger.info(
+        "bot_started: chat_id=%s user_id=%s",
+        event.chat_id,
+        getattr(event.user, "user_id", None),
+    )
     kb = main_menu_kb()
     await event.bot.send_message(
         chat_id=event.chat_id,
