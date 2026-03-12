@@ -45,26 +45,28 @@ def _get_phone_from_payload(payload) -> str | None:
 
 
 def _extract_phone_from_contact_attachment(attachments: list) -> str | None:
-    """Из вложений сообщения извлечь номер из контакта (type=contact и др.)."""
+    """Из вложений сообщения извлечь номер (type=contact или любой payload с phone)."""
     if not attachments:
         return None
-    contact_types = ("contact", "request_contact", "contact_shared")
+    contact_types = ("contact", "request_contact", "contact_shared", "vcard")
     for att in attachments:
         att_type = getattr(att, "type", None) or (
             att.get("type") if isinstance(att, dict) else None
         )
-        if att_type not in contact_types:
-            continue
         payload = getattr(att, "payload", None) or (
             att.get("payload") if isinstance(att, dict) else None
         )
-        phone = _get_phone_from_payload(payload)
+        if att_type in contact_types:
+            phone = _get_phone_from_payload(payload)
+            if phone:
+                return phone
+            if isinstance(att, dict) and att.get("phone_number"):
+                return str(att["phone_number"]).strip()
+            if hasattr(att, "phone_number") and getattr(att, "phone_number", None):
+                return str(getattr(att, "phone_number")).strip()
+        phone = _get_phone_from_payload(att) or _get_phone_from_payload(payload)
         if phone:
             return phone
-        if isinstance(att, dict) and att.get("phone_number"):
-            return str(att["phone_number"]).strip()
-        if hasattr(att, "phone_number") and getattr(att, "phone_number", None):
-            return str(getattr(att, "phone_number")).strip()
     return None
 
 
