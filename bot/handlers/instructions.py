@@ -21,10 +21,10 @@ async def on_get_instruction(event: MessageCallback):
     await event.answer(new_text=texts.CHOOSE_MODEL, keyboard=kb.as_markup())
 
 
-@router.message_callback(F.callback.payload.startswith("select_model_"))
+@router.message_callback(F.callback.payload.in_(["model_1", "model_2", "model_3"]))
 async def on_select_model(event: MessageCallback):
     """Выбрана конкретная модель — отправить инструкцию и запланировать follow-up."""
-    model_key = event.callback.payload.replace("select_", "")
+    model_key = event.callback.payload
     model_name = settings.models.names.get(model_key, model_key)
     video_url = settings.models.videos.get(model_key, "")
 

@@ -81,7 +81,7 @@ async def send_feedback_message(
         kb = feedback_kb()
         await _bot.send_message(
             chat_id=chat_id,
-            text=texts.FEEDBACK_QUESTION.format(model_name=model_name),
+            text=texts.FEEDBACK_QUESTION,
             attachments=[kb.as_markup()],
         )
         logger.info(

@@ -22,7 +22,7 @@ def models_kb() -> InlineKeyboardBuilder:
         builder.row(
             CallbackButton(
                 text=name,
-                payload=f"select_{key}",
+                payload=key,  # model_1, model_2, model_3 — как в ТЗ
             )
         )
     return builder
