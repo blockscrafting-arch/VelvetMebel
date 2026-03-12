@@ -37,7 +37,7 @@ async def on_assembly_ok(event: MessageCallback):
 
 @router.message_callback(F.callback.payload == "assembly_problem")
 async def on_assembly_problem(event: MessageCallback):
-    """«Нет» — отправляем текст и кнопку-ссылку на чат техподдержки (если задана), обновляем статус."""
+    """«Нет» — текст и кнопка в чат поддержки (если задана), обновляем статус."""
     kb = support_kb()
     if kb:
         await event.answer(new_text=texts.FEEDBACK_PROBLEM, keyboard=kb.as_markup())

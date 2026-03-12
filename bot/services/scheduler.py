@@ -8,7 +8,7 @@ from maxapi import Bot
 from bot.config import settings
 from bot import texts
 from bot.keyboards.inline import feedback_kb
-from bot.services import database, sheets
+from bot.services import database
 
 logger = logging.getLogger(__name__)
 
