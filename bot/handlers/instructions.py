@@ -30,7 +30,7 @@ async def on_select_model(event: MessageCallback):
     video_url = settings.models.videos.get(model_key, "")
 
     user = event.from_user
-    chat_id = event.chat_id
+    chat_id = event.message.recipient.chat_id
 
     await event.message.answer(
         text=texts.INSTRUCTION_SENT.format(
