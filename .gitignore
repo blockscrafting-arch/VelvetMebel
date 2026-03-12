@@ -12,6 +12,8 @@ build/
 venv/
 .venv/
 credentials.json
+*credentials*.json
+**/google-*-credentials*.json
 data/*.db
 data/*.sqlite
 
