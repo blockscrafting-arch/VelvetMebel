@@ -17,6 +17,7 @@ data/*.sqlite
 
 # Документация и Cursor — не коммитим
 *.md
+*.pdf
 .cursor/
 
 # IDE
