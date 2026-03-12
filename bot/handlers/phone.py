@@ -30,10 +30,34 @@ def _normalize_phone(raw: str) -> str:
     return raw
 
 
+# VCARD: TEL;TYPE=cell:79788643335 или TEL:79001234567
+_VCARD_TEL_RE = re.compile(r"TEL(?:;[^:]*)?:([\d\s+\-]+)", re.IGNORECASE)
+
+
+def _phone_from_vcard(vcf_str: str) -> str | None:
+    """Извлечь первый номер телефона из строки VCARD (payload.vcf_info в MAX)."""
+    if not vcf_str or not isinstance(vcf_str, str):
+        return None
+    m = _VCARD_TEL_RE.search(vcf_str)
+    if m:
+        return m.group(1).strip()
+    return None
+
+
 def _get_phone_from_payload(payload) -> str | None:
     """Достать номер из payload (объект или dict), разные варианты имён полей."""
     if payload is None:
         return None
+    if isinstance(payload, dict):
+        vcf = payload.get("vcf_info")
+        if vcf:
+            phone = _phone_from_vcard(vcf)
+            if phone:
+                return phone
+    if hasattr(payload, "vcf_info") and getattr(payload, "vcf_info", None):
+        phone = _phone_from_vcard(str(getattr(payload, "vcf_info")))
+        if phone:
+            return phone
     for key in ("phone_number", "phoneNumber", "phone"):
         if hasattr(payload, key):
             val = getattr(payload, key, None)
