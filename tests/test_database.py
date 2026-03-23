@@ -113,5 +113,10 @@ async def test_list_dialogs_tabs_and_search():
 
     found = await database.list_dialogs("all", search="Мария")
     assert any(d["user_id"] == 40 for d in found)
+    found_lower = await database.list_dialogs("all", search="мария")
+    assert any(d["user_id"] == 40 for d in found_lower)
     found_phone = await database.list_dialogs("all", search="991112233")
     assert any(d["user_id"] == 40 for d in found_phone)
+    await database.update_user_phone(40, "+7 (999) 111-22-33")
+    found_phone_fmt = await database.list_dialogs("all", search="9991112233")
+    assert any(d["user_id"] == 40 for d in found_phone_fmt)

@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Any
 
 import aiosqlite
@@ -15,11 +16,27 @@ DIALOG_STATUSES = ("new", "in_progress", "resolved")
 DIALOG_TABS = frozenset({"all", "review_requested", "review_received", "problems"})
 
 
+def _sql_ilower(value: object) -> str:
+    """Нижний регистр для Unicode (кириллица); LIKE в SQLite без NOCASE для не-ASCII."""
+    if value is None:
+        return ""
+    return str(value).lower()
+
+
+def _sql_digits_only(value: object) -> str:
+    """Только цифры — поиск телефона независимо от +, скобок, пробелов."""
+    if value is None:
+        return ""
+    return re.sub(r"\D", "", str(value))
+
+
 async def _configure_db(db: Connection) -> None:
     """PRAGMA для совместной работы бота и админки (WAL + таймаут блокировок)."""
     await db.execute("PRAGMA journal_mode=WAL;")
     await db.execute("PRAGMA busy_timeout=5000;")
     await db.execute("PRAGMA foreign_keys=ON;")
+    await db.create_function("ilower", 1, _sql_ilower)
+    await db.create_function("digits_only", 1, _sql_digits_only)
 
 
 async def init_db():
@@ -361,13 +378,21 @@ async def list_dialogs(
     where_extra = ""
 
     if search and search.strip():
-        pat = f"%{search.strip()}%"
-        where_extra = """ AND (
-            COALESCE(u.first_name,'') LIKE ? OR COALESCE(u.last_name,'') LIKE ?
-            OR COALESCE(u.phone,'') LIKE ? OR CAST(u.user_id AS TEXT) LIKE ?
-            OR COALESCE(u.username,'') LIKE ?
-        )"""
-        params.extend([pat, pat, pat, pat, pat])
+        raw = search.strip()
+        pat_lower = f"%{raw.lower()}%"
+        pat_id = f"%{raw}%"
+        digits_in_query = re.sub(r"\D", "", raw)
+        search_parts = [
+            "ilower(COALESCE(u.first_name,'')) LIKE ?",
+            "ilower(COALESCE(u.last_name,'')) LIKE ?",
+            "ilower(COALESCE(u.username,'')) LIKE ?",
+            "CAST(u.user_id AS TEXT) LIKE ?",
+        ]
+        params.extend([pat_lower, pat_lower, pat_lower, pat_id])
+        if digits_in_query:
+            search_parts.append("digits_only(COALESCE(u.phone,'')) LIKE ?")
+            params.append(f"%{digits_in_query}%")
+        where_extra = " AND (" + " OR ".join(search_parts) + ")"
 
     sql = f"""
         SELECT
