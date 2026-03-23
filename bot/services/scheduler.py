@@ -85,6 +85,8 @@ async def send_feedback_message(
             text=texts.FEEDBACK_QUESTION,
             attachments=[kb.as_markup()],
         )
+        await database.save_message(user_id, "bot", texts.FEEDBACK_QUESTION)
+        await database.update_feedback_status(request_id, "no_response")
         logger.info(
             "Отправлено сообщение о сборке: user=%s, request=%s",
             user_id,

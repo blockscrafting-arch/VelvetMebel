@@ -77,6 +77,19 @@ class Settings:
     scheduler_db_path: str = field(
         default_factory=lambda: str(DATA_DIR / "scheduler.db")
     )
+    # Веб-админка (HTTP Basic): задайте ADMIN_PASSWORD в .env
+    admin_username: str = field(
+        default_factory=lambda: os.getenv("ADMIN_USERNAME", "admin").strip() or "admin"
+    )
+    admin_password: str = field(
+        default_factory=lambda: os.getenv("ADMIN_PASSWORD", "").strip()
+    )
+    admin_host: str = field(
+        default_factory=lambda: os.getenv("ADMIN_HOST", "0.0.0.0").strip() or "0.0.0.0"
+    )
+    admin_port: int = field(
+        default_factory=lambda: _safe_int(os.getenv("ADMIN_PORT", "8000"), 8000)
+    )
 
 
 settings = Settings()

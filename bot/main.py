@@ -14,6 +14,7 @@ from bot.handlers.start import router as start_router
 from bot.handlers.phone import router as phone_router
 from bot.handlers.instructions import router as instructions_router
 from bot.handlers.feedback import router as feedback_router
+from bot.middlewares import MessageLogMiddleware
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,6 +32,7 @@ async def main():
     bot = Bot(token=settings.bot.token)
     dp = Dispatcher()
 
+    dp.outer_middleware(MessageLogMiddleware())
     dp.include_routers(start_router, phone_router, instructions_router, feedback_router)
 
     await init_db()

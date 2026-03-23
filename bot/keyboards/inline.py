@@ -13,6 +13,14 @@ def main_menu_kb() -> InlineKeyboardBuilder:
             payload="get_instruction",
         )
     )
+    link = (settings.support_chat_link or "").strip()
+    if link:
+        builder.row(
+            LinkButton(
+                text=texts.BTN_MAIN_SUPPORT,
+                url=link,
+            )
+        )
     builder.row(
         RequestContactButton(text=texts.BTN_SHARE_PHONE),
     )

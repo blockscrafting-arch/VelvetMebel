@@ -6,7 +6,7 @@ from maxapi.types import MessageCallback
 from bot import texts
 from bot.config import settings
 from bot.keyboards.inline import models_kb
-from bot.services.database import save_user, save_request
+from bot.services.database import save_message, save_request, save_user
 from bot.services.scheduler import schedule_feedback
 from bot.services import sheets
 
@@ -20,7 +20,13 @@ async def on_get_instruction(event: MessageCallback):
     kb = models_kb()
     await event.answer(notification="")
     await event.message.answer(text=texts.CHOOSE_MODEL, attachments=[kb.as_markup()])
-
+    if event.from_user:
+        from bot.services import database
+        await database.ensure_user_stub(event.from_user.user_id, event.message.recipient.chat_id)
+        await save_message(
+            event.from_user.user_id, "user", "[Нажал кнопку: Получить видео инструкцию]"
+        )
+        await save_message(event.from_user.user_id, "bot", texts.CHOOSE_MODEL)
 
 @router.message_callback(F.callback.payload.in_(["model_1", "model_2", "model_3"]))
 async def on_select_model(event: MessageCallback):
@@ -32,14 +38,19 @@ async def on_select_model(event: MessageCallback):
     user = event.from_user
     chat_id = event.message.recipient.chat_id
 
-    await event.message.answer(
-        text=texts.INSTRUCTION_SENT.format(
-            model_name=model_name,
-            video_url=video_url if video_url else "(видео будет добавлено)",
-        ),
+    if user:
+        from bot.services import database
+        await database.ensure_user_stub(user.user_id, chat_id)
+        await save_message(user.user_id, "user", f"[Выбрал модель: {model_name}]")
+        
+    instruction_text = texts.INSTRUCTION_SENT.format(
+        model_name=model_name,
+        video_url=video_url if video_url else "(видео будет добавлено)",
     )
+    await event.message.answer(text=instruction_text)
 
     if user:
+        await save_message(user.user_id, "bot", instruction_text)
         try:
             await save_user(
                 user_id=user.user_id,

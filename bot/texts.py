@@ -36,6 +36,7 @@ FEEDBACK_PROBLEM = (
 
 # Кнопки
 BTN_GET_INSTRUCTION = "📋 Получить видео инструкцию"
+BTN_MAIN_SUPPORT = "💬 Написать в техподдержку"
 BTN_SHARE_PHONE = "📱 Поделиться номером"
 BTN_ASSEMBLY_OK = "Да"
 BTN_ASSEMBLY_PROBLEM = "Нет"

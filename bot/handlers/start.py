@@ -5,7 +5,7 @@ from maxapi.types import BotStarted, MessageCreated, Command
 
 from bot import texts
 from bot.keyboards.inline import main_menu_kb
-from bot.services.database import save_user
+from bot.services.database import save_message, save_user
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -35,10 +35,11 @@ async def on_bot_started(event: BotStarted):
                 last_name=event.user.last_name,
                 username=event.user.username,
             )
+            await save_message(event.user.user_id, "user", "[Нажал кнопку: Начать]")
+            await save_message(event.user.user_id, "bot", texts.WELCOME)
             logger.info("Новый пользователь: %s (%s)", event.user.first_name, event.user.user_id)
         except Exception:
             logger.exception("Ошибка сохранения пользователя: user_id=%s", event.user.user_id)
-
 
 @router.message_created(Command("start"))
 async def on_start_command(event: MessageCreated):
@@ -59,5 +60,6 @@ async def on_start_command(event: MessageCreated):
                 last_name=event.from_user.last_name,
                 username=event.from_user.username,
             )
+            await save_message(event.from_user.user_id, "bot", texts.WELCOME)
         except Exception:
             logger.exception("Ошибка сохранения пользователя: user_id=%s", event.from_user.user_id)

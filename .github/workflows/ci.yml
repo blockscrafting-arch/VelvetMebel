@@ -36,10 +36,11 @@ jobs:
           from bot.handlers.start import router
           from bot.services.database import init_db
           from bot.services.scheduler import get_scheduler
+          from admin.main import app as admin_app
           print('Imports OK')
           "
 
       - name: Lint (ruff)
         run: |
           pip install ruff
-          ruff check bot/ --output-format=concise
+          ruff check bot/ admin/ --output-format=concise

@@ -9,7 +9,7 @@ from maxapi import F, Router
 from maxapi.types import MessageCreated
 
 from bot import texts
-from bot.services.database import update_user_phone
+from bot.services.database import save_message, update_user_phone
 from bot.services import sheets
 
 logger = logging.getLogger(__name__)
@@ -131,10 +131,14 @@ async def on_contact_shared(event: MessageCreated):
         if row_index:
             sheets.update_phone(row_index, phone)
         await event.message.answer(text=texts.PHONE_SAVED)
+        await save_message(user.user_id, "user", "[Поделился контактом / номером телефона]")
+        await save_message(user.user_id, "bot", texts.PHONE_SAVED)
         logger.info("Сохранён телефон: user_id=%s", user.user_id)
     except Exception:
         logger.exception("Ошибка сохранения телефона: user_id=%s", user.user_id)
-        await event.message.answer(text="Не удалось сохранить номер. Попробуйте позже.")
+        err = "Не удалось сохранить номер. Попробуйте позже."
+        await event.message.answer(text=err)
+        await save_message(user.user_id, "bot", err)
 
 
 @router.message_created(F.message.body.text.regexp(r"^[\d\s+\-()]{10,20}$"))
@@ -157,6 +161,7 @@ async def on_phone_text(event: MessageCreated):
         if row_index:
             sheets.update_phone(row_index, phone)
         await event.message.answer(text=texts.PHONE_SAVED)
+        await save_message(user.user_id, "bot", texts.PHONE_SAVED)
         logger.info("Сохранён телефон (текст): user_id=%s", user.user_id)
     except Exception:
         logger.exception("Ошибка сохранения телефона: user_id=%s", user.user_id)
