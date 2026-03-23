@@ -1,0 +1,16 @@
+[Unit]
+Description=Velvet Mebel — веб-админка MAX-бота (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+User=botuser
+WorkingDirectory=/home/botuser/evgesha20
+ExecStart=/home/botuser/evgesha20/venv/bin/python -m admin.main
+Restart=always
+RestartSec=10
+TimeoutStopSec=15
+EnvironmentFile=/home/botuser/evgesha20/.env
+
+[Install]
+WantedBy=multi-user.target
