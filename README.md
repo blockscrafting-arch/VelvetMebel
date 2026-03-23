@@ -118,7 +118,7 @@ requirements-dev.txt     # pytest + pytest-asyncio (для тестов)
 
 ## Деплой на VPS (systemd)
 
-Файлы `deploy/maxbot.service` и `deploy/maxadmin.service` содержат примеры с `User=botuser` и путём `/home/botuser/evgesha20`. **Перед установкой подставьте своего пользователя и путь к проекту.**
+Файлы `deploy/maxbot.service` и `deploy/maxadmin.service` настроены под типовой VPS: **`User=root`**, каталог **`/root/VelvetMebel`**, venv **`/root/VelvetMebel/venv`**. Если проект в другом месте или под другим пользователем — отредактируйте `User`, `WorkingDirectory`, `ExecStart` и `EnvironmentFile` в обоих unit-файлах (или уже скопированных в `/etc/systemd/system/`).
 
 Чтобы **бот и админка работали постоянно** (автозапуск после перезагрузки + перезапуск при падении):
 
