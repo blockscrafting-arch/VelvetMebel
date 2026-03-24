@@ -60,7 +60,11 @@ async def main():
             except SchedulerNotRunningError:
                 pass
         logger.info("Получен сигнал завершения. Останавливаем поллинг...")
-        dp.stop_polling()
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(dp.stop_polling())
+        except RuntimeError:
+            pass
 
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
