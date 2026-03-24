@@ -21,6 +21,7 @@ logging.basicConfig(
     format="%(asctime)s | %(name)-20s | %(levelname)-7s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+logging.getLogger("tzlocal").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
@@ -58,14 +59,19 @@ async def main():
                 logger.info("Планировщик остановлен")
             except SchedulerNotRunningError:
                 pass
-        sys.exit(0)
+        logger.info("Получен сигнал завершения. Останавливаем поллинг...")
+        dp.stop_polling()
 
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
 
     logger.info("Бот запускается...")
     await bot.delete_webhook()
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.close_session()
+        logger.info("Сессия HTTP-клиента бота закрыта.")
 
 
 if __name__ == "__main__":
